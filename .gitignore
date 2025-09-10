@@ -1,0 +1,64 @@
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Visual Studio / IDE ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# --- VS Code (Konfigs optional mit-committen) ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# --- JetBrains Rider ---
+.idea/
+*.sln.iml
+
+# --- Build/Artifacts ---
+**/bin/
+**/obj/
+**/out/
+**/artifacts/
+
+# --- Test ---
+TestResults/
+**/TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+**/coverage/
+coverage*.json
+lcov.info
+
+# --- Logs ---
+*.log
+logs/
+
+# --- NuGet ---
+*.nupkg
+packages/
+
+# --- Publish (liegt idR unter bin/, daher schon ignoriert) ---
+# (leer)
+
+# --- EF Core ---
+# Migrations sollen IM REPO bleiben:
+!**/Migrations/**
+
+# --- Lokale Konfig/Secrets ---
+*.user
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+.env
+
+# --- Docker ---
+docker-compose.override.yml
+.docker/

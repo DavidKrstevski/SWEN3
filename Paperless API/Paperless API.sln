@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Paperless API", "Paperless API\Paperless API.csproj", "{2B5B7FDA-AD93-4159-8191-9466AB3CF48C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{84D27F74-D2BA-6C25-2661-968F101900D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Paperless Tests", "Paperless Tests\Paperless Tests.csproj", "{35CD7D6F-CEB3-4C64-83EF-DF72FF42FD2B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2B5B7FDA-AD93-4159-8191-9466AB3CF48C} = {2B5B7FDA-AD93-4159-8191-9466AB3CF48C}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B5B7FDA-AD93-4159-8191-9466AB3CF48C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B5B7FDA-AD93-4159-8191-9466AB3CF48C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B5B7FDA-AD93-4159-8191-9466AB3CF48C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B5B7FDA-AD93-4159-8191-9466AB3CF48C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35CD7D6F-CEB3-4C64-83EF-DF72FF42FD2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35CD7D6F-CEB3-4C64-83EF-DF72FF42FD2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35CD7D6F-CEB3-4C64-83EF-DF72FF42FD2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35CD7D6F-CEB3-4C64-83EF-DF72FF42FD2B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {26B28441-14E2-4863-B33B-4548C3E958E7}
+	EndGlobalSection
+EndGlobal
