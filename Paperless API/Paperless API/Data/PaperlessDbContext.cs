@@ -15,7 +15,7 @@ namespace Paperless_API.Data
             b.Entity<Document>(e =>
             {
                 e.HasKey(x => x.Id);
-                e.Property(x => x.FileName).IsRequired().HasMaxLength(255);
+                e.Property(x => x.FileName).IsRequired();
             });
         }
     }

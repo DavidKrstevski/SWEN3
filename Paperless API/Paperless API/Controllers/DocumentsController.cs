@@ -34,7 +34,21 @@ namespace Paperless_API.Controllers
         public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         {
             var doc = await _repo.GetAsync(id, ct);
-            return doc is null ? NotFound() : Ok(doc);
+            if (doc is null)
+                return NotFound();
+            else
+                return Ok(doc);
+        }
+
+        // GET api/documents/
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken ct)
+        {
+            var doc = await _repo.GetAllAsync(ct);
+            if (doc is null)
+                return NotFound();
+            else
+                return Ok(doc);
         }
 
         // DELETE api/documents/{id}

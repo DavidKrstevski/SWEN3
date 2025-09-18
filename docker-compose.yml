@@ -15,7 +15,6 @@ services:
       context: "./Paperless API"
       dockerfile: Dockerfile
     environment:
-      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Postgres: Host=db;Port=5432;Database=paperless;Username=paperless;Password=paperless
     depends_on:
       - db

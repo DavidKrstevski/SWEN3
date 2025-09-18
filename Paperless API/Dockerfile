@@ -1,16 +1,10 @@
-# syntax=docker/dockerfile:1
-
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Paperless API/Paperless API.csproj", "app/"]
-RUN dotnet restore "app/Paperless API.csproj"
 COPY ["Paperless API/", "app/"]
-WORKDIR /src/app
-RUN dotnet publish "Paperless API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "app/Paperless API.csproj" -c Release -o /out
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+COPY --from=build /out .
 ENTRYPOINT ["dotnet", "Paperless API.dll"]
+EXPOSE 8080
