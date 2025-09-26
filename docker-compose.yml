@@ -21,5 +21,14 @@ services:
     ports:
       - "8080:8080"
 
+  ui:
+    build:
+      context: "./Paperless UI"
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
 volumes:
   pgdata:
