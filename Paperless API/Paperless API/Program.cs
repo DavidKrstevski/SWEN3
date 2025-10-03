@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Paperless_API.Data;
 using Paperless_API.Data.Repositories;
+using Paperless_API.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ var cs = builder.Configuration.GetConnectionString("Postgres");
 
 builder.Services.AddDbContext<PaperlessDbContext>(o => o.UseNpgsql(cs));
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+
+builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

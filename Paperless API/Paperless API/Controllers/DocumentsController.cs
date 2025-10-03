@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Paperless_API.Data;
 using Paperless_API.Data.Repositories;
 using Paperless_API.Entities;
+using Paperless_API.Exceptions;
+using Paperless_API.Messaging;
 using System.Reflection.Metadata;
+using System.Xml.Linq;
 using Document = Paperless_API.Entities.Document;
 
 namespace Paperless_API.Controllers
@@ -13,19 +16,35 @@ namespace Paperless_API.Controllers
     public class DocumentsController : ControllerBase
     {
         private readonly IDocumentRepository _repo;
-        public DocumentsController(IDocumentRepository repo) => _repo = repo;
+        private readonly IRabbitMqProducer _producer;
+        private readonly ILogger<DocumentsController> _logger;
+
+        public DocumentsController(IDocumentRepository repo, IRabbitMqProducer producer, ILogger<DocumentsController> logger)
+        {
+            _repo = repo;
+            _producer = producer;
+            _logger = logger;
+        }
 
         // POST api/documents
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Document doc, CancellationToken ct)
         {
             if (doc is null || string.IsNullOrWhiteSpace(doc.FileName))
+            {
+                _logger.LogWarning("Invalid document received");
                 return BadRequest();
+            }
 
             doc.Id = Guid.NewGuid();
             doc.UploadDate = DateTimeOffset.UtcNow;
 
             await _repo.AddAsync(doc, ct);
+            _logger.LogInformation("Document {DocId} saved to DB", doc.Id);
+
+            await _producer.PublishAsync(doc, _producer.Host, _producer.Queue);
+            _logger.LogInformation("Document {DocId} published to RabbitMQ", doc.Id);
+
             return CreatedAtAction(nameof(GetById), new { id = doc.Id }, doc);
         }
 
@@ -33,12 +52,18 @@ namespace Paperless_API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         {
-            var doc = await _repo.GetAsync(id, ct);
-            if (doc is null)
-                return NotFound();
-            else
+            try
+            {
+                var doc = await _repo.GetAsync(id, ct);
                 return Ok(doc);
+            }
+            catch (DocumentNotFoundException)
+            {
+                _logger.LogWarning("Unable to get Document {DocId} not found in database", id);
+                return NotFound();
+            }
         }
+
 
         // GET api/documents/
         [HttpGet]
@@ -46,7 +71,10 @@ namespace Paperless_API.Controllers
         {
             var doc = await _repo.GetAllAsync(ct);
             if (doc is null)
+            {
+                _logger.LogInformation("No Documents exist in the Database");
                 return NotFound();
+            }
             else
                 return Ok(doc);
         }
@@ -55,8 +83,17 @@ namespace Paperless_API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         {
-            await _repo.DeleteAsync(id, ct);
-            return NoContent();
+            try
+            {
+                await _repo.DeleteAsync(id, ct);
+                return NoContent();
+            }
+            catch (DocumentNotFoundException)
+            {
+                _logger.LogWarning("Unable to delete Document {DocId} not found in database", id);
+                return NotFound();
+            }
         }
+
     }
 }

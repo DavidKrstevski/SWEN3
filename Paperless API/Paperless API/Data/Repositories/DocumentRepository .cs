@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Paperless_API.Entities;
+using Paperless_API.Exceptions;
 
 namespace Paperless_API.Data.Repositories
 {
@@ -15,17 +16,22 @@ namespace Paperless_API.Data.Repositories
             return doc;
         }
 
-        public Task<Document> GetAsync(Guid id, CancellationToken ct) =>
-            _db.Documents.FirstOrDefaultAsync(d => d.Id == id, ct);
+        public async Task<Document> GetAsync(Guid id, CancellationToken ct)
+        {
+            var doc = await _db.Documents.FirstOrDefaultAsync(d => d.Id == id, ct);
+            if (doc == null)
+                throw new DocumentNotFoundException(id);
+
+            return doc;
+        }
 
         public Task<List<Document>> GetAllAsync(CancellationToken ct) =>
             _db.Documents.ToListAsync(ct);
 
         public async Task DeleteAsync(Guid id, CancellationToken ct)
         {
-            var doc = new Document { Id = id };
-            _db.Attach(doc);
-            _db.Remove(doc);
+            var doc = await GetAsync(id, ct);
+            _db.Documents.Remove(doc);
             await _db.SaveChangesAsync(ct);
         }
     }
