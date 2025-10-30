@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Paperless_API.Config;
 using Paperless_API.Data;
 using Paperless_API.Data.Repositories;
 using Paperless_API.Messaging;
@@ -16,6 +17,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<RabbitMqSettings>(
+    builder.Configuration.GetSection("RabbitMQ"));
+
+builder.Services.Configure<MinioSettings>(
+    builder.Configuration.GetSection("Minio"));
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -23,6 +30,8 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader());
 });
+
+builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>();
 
 var app = builder.Build();
 

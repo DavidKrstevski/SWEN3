@@ -1,25 +1,31 @@
-﻿using RabbitMQ.Client;
+﻿using System.Text;
 using System.Text.Json;
-using System.Text;
+using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+using Paperless_API.Config;
 
 namespace Paperless_API.Messaging
 {
     public class RabbitMqProducer : IRabbitMqProducer
     {
-        public string Host { get; }
-        public string Queue { get; }
+        private readonly RabbitMqSettings _settings;
 
-        public RabbitMqProducer(IConfiguration config)
+        public RabbitMqProducer(IOptions<RabbitMqSettings> options)
         {
-            Host = config["RabbitMq:HostName"];
-            Queue = config["RabbitMq:QueueName"];
+            _settings = options.Value;
         }
 
-        public async Task<string> PublishAsync<T>(T item, string hostName, string queueName)
+        public string Host => _settings.Host;
+        public string Queue => _settings.Queue;
+
+        public async Task<string> PublishAsync<T>(T item, string? hostName = null, string? queueName = null)
         {
+            hostName ??= _settings.Host;
+            queueName ??= _settings.Queue;
+
             var factory = new ConnectionFactory { HostName = hostName };
 
-            await using var connection = await factory.CreateConnectionAsync();
+            await using var connection = await factory.CreateConnectionAsync("PaperlessPublisher");
             await using var channel = await connection.CreateChannelAsync();
 
             await channel.QueueDeclareAsync(
@@ -27,24 +33,22 @@ namespace Paperless_API.Messaging
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
-                arguments: null);
+                arguments: null
+            );
 
             var json = JsonSerializer.Serialize(item);
-            var body = Encoding.UTF8.GetBytes(json);
-
-            var properties = new BasicProperties
-            {
-                Persistent = true
-            };
+            var body = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(json));
 
             await channel.BasicPublishAsync(
                 exchange: string.Empty,
                 routingKey: queueName,
                 mandatory: false,
-                basicProperties: properties,
-                body: new ReadOnlyMemory<byte>(body));
+                body: body,
+                cancellationToken: CancellationToken.None
+            );
 
-            return $"Processed item of type {typeof(T).Name}: {item}";
+            Console.WriteLine($"[x] Sent message to queue '{queueName}': {json}");
+            return json;
         }
     }
 }
