@@ -57,6 +57,15 @@ services:
     volumes:
       - minio_data:/data
 
+  ocrworker:
+    build:
+      context: ./Paperless_OCRWorker
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      RabbitMQ__Host: rabbitmq
+
 volumes:
   pgdata:
   rabbitmq_data:
