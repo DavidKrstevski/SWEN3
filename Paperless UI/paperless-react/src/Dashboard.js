@@ -5,8 +5,7 @@ const API_URL = "http://localhost:8080/api/documents";
 
 function Dashboard() {
   const [docs, setDocs] = useState([]);
-  const [fileName, setFileName] = useState("");
-  const [size, setSize] = useState("");
+  const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
 
   async function loadDocuments() {
@@ -20,21 +19,29 @@ function Dashboard() {
     }
   }
 
-  async function addDocument(e) {
+  async function uploadDocument(e) {
     e.preventDefault();
+    if (!file) {
+      setMessage("Please select a file first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName, size: parseInt(size, 10) }),
+        body: formData,
       });
+
       if (!res.ok) throw new Error();
-      setFileName("");
-      setSize("");
-      setMessage("Document added successfully!");
-      loadDocuments();
+      const newDoc = await res.json();
+      setMessage("File uploaded successfully!");
+      setFile(null);
+      setDocs((prev) => [...prev, newDoc]);
     } catch {
-      setMessage("Error adding document");
+      setMessage("Error uploading file");
     }
   }
 
@@ -80,24 +87,16 @@ function Dashboard() {
       </ul>
 
       <div className="card p-4 shadow-sm">
-        <h5 className="mb-3">Add a New Document</h5>
-        <form onSubmit={addDocument}>
+        <h5 className="mb-3">Upload a PDF Document</h5>
+        <form onSubmit={uploadDocument}>
           <input
+            type="file"
+            accept="application/pdf"
             className="form-control mb-2"
-            placeholder="Document name"
-            value={fileName}
-            onChange={(e) => setFileName(e.target.value)}
+            onChange={(e) => setFile(e.target.files[0])}
             required
           />
-          <input
-            className="form-control mb-2"
-            type="number"
-            placeholder="Size in bytes"
-            value={size}
-            onChange={(e) => setSize(e.target.value)}
-            required
-          />
-          <button className="btn btn-success w-100">Add Document</button>
+          <button className="btn btn-success w-100">Upload PDF</button>
         </form>
       </div>
     </div>

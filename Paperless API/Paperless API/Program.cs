@@ -3,6 +3,7 @@ using Paperless_API.Config;
 using Paperless_API.Data;
 using Paperless_API.Data.Repositories;
 using Paperless_API.Messaging;
+using Paperless_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<PaperlessDbContext>(o => o.UseNpgsql(cs));
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
 builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>();
+builder.Services.AddSingleton<MinioService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -30,8 +32,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader());
 });
-
-builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>();
 
 var app = builder.Build();
 

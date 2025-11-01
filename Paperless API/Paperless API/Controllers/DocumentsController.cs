@@ -5,6 +5,7 @@ using Paperless_API.Data.Repositories;
 using Paperless_API.Entities;
 using Paperless_API.Exceptions;
 using Paperless_API.Messaging;
+using Paperless_API.Services;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
 using Document = Paperless_API.Entities.Document;
@@ -28,22 +29,25 @@ namespace Paperless_API.Controllers
 
         // POST api/documents
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Document doc, CancellationToken ct)
+        [RequestSizeLimit(50_000_000)] 
+        public async Task<IActionResult> Create(IFormFile file, [FromServices] MinioService minio, CancellationToken ct)
         {
-            if (doc is null || string.IsNullOrWhiteSpace(doc.FileName))
-            {
-                _logger.LogWarning("Invalid document received");
-                return BadRequest();
-            }
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
 
-            doc.Id = Guid.NewGuid();
-            doc.UploadDate = DateTimeOffset.UtcNow;
+            var doc = new Document
+            {
+                Id = Guid.NewGuid(),
+                FileName = file.FileName,
+                Size = file.Length,
+                UploadDate = DateTimeOffset.UtcNow
+            };
+
+            await using var stream = file.OpenReadStream();
+            await minio.UploadAsync(doc.Id + ".pdf", stream);
 
             await _repo.AddAsync(doc, ct);
-            _logger.LogInformation("Document {DocId} saved to DB", doc.Id);
-
             await _producer.PublishAsync(doc, _producer.Host, _producer.Queue);
-            _logger.LogInformation("Document {DocId} published to RabbitMQ", doc.Id);
 
             return CreatedAtAction(nameof(GetById), new { id = doc.Id }, doc);
         }
