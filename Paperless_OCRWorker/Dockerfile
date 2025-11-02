@@ -3,12 +3,8 @@
 # ------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-
-# copy project file and restore dependencies
 COPY *.csproj ./
 RUN dotnet restore
-
-# copy the rest of the code and build
 COPY . .
 RUN dotnet publish -c Release -o /app/publish
 
@@ -17,5 +13,11 @@ RUN dotnet publish -c Release -o /app/publish
 # ------------------------------
 FROM mcr.microsoft.com/dotnet/runtime:8.0
 WORKDIR /app
+
+# install Tesseract and Ghostscript (for PDF input)
+RUN apt-get update && \
+    apt-get install -y tesseract-ocr ghostscript poppler-utils && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Paperless_OCRWorker.dll"]
