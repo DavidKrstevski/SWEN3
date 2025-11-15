@@ -5,10 +5,12 @@ namespace Paperless_OCRWorker.Services;
 public class OcrService
 {
     private readonly MinioService _minio;
+    private readonly IRabbitMqProducer _producer;
 
-    public OcrService(MinioService minio)
+    public OcrService(MinioService minio, IRabbitMqProducer producer)
     {
         _minio = minio;
+        _producer = producer;
     }
 
     public async Task ProcessDocumentAsync(DocumentMessage doc)
@@ -35,6 +37,7 @@ public class OcrService
             {
                 await _minio.UploadFileAsync($"{doc.Id}.txt", localTxt);
                 Console.WriteLine($"Uploaded OCR result: {doc.Id}.txt");
+                await _producer.PublishAsync(doc, _producer.Host, _producer.Queue);
             }
             else
             {

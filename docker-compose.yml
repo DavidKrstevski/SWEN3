@@ -66,6 +66,32 @@ services:
     environment:
       RabbitMQ__Host: rabbitmq
 
+  genai-worker:
+    build:
+      context: "./Paperless AI"
+      dockerfile: "./Paperless AI/Dockerfile"
+    restart: always
+    depends_on:
+      - rabbitmq
+      - minio
+    environment:
+      # Gemini
+      GEMINI_API_KEY: AIzaSyDa-MwTbM5kU9LYpFnglVD30_0wiGN0QT4
+      GEMINI_MODEL: gemini-2.5-flash
+
+      # RabbitMQ (Queue-Namen unbedingt an deine "OCR-fertig"-Queue anpassen!)
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      RABBITMQ_OCR_COMPLETED_QUEUE: ocr_completed
+
+      # MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: documents
+      MINIO_SUMMARY_PREFIX: summaries/
+
 volumes:
   pgdata:
   rabbitmq_data:
