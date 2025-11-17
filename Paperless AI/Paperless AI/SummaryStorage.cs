@@ -12,7 +12,6 @@ public class SummaryStorage
     private readonly IMinioClient _minio;
     private readonly ILogger<SummaryStorage> _logger;
     private readonly string _bucket;
-    private readonly string _summaryPrefix;
 
     public SummaryStorage(IConfiguration config, ILogger<SummaryStorage> logger)
     {

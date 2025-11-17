@@ -24,7 +24,6 @@ public class RabbitMqConsumer : IDisposable
         var user = config["RABBITMQ_USER"] ?? "guest";
         var pass = config["RABBITMQ_PASS"] ?? "guest";
 
-        // WICHTIG: Standard auf "ocr.completed" setzen – passend zum Producer
         _queueName = config["RABBITMQ_OCR_COMPLETED_QUEUE"] ?? "ocr.completed";
 
         _factory = new ConnectionFactory
@@ -43,10 +42,9 @@ public class RabbitMqConsumer : IDisposable
         _connection = await _factory.CreateConnectionAsync(ct);
         _channel = await _connection.CreateChannelAsync();
 
-        // Queue-Definition MUSS mit Producer übereinstimmen (durable/exclusive/autoDelete)
         await _channel.QueueDeclareAsync(
             queue: _queueName,
-            durable: false,    // <--- wie im Producer!
+            durable: false,
             exclusive: false,
             autoDelete: false,
             arguments: null,
@@ -136,7 +134,6 @@ public class RabbitMqConsumer : IDisposable
         }
         catch
         {
-            // nothing
         }
     }
 }

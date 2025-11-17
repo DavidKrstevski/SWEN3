@@ -10,11 +10,7 @@ public class GenAiWorkerService : BackgroundService
     private readonly SummaryStorage _storage;
     private readonly ILogger<GenAiWorkerService> _logger;
 
-    public GenAiWorkerService(
-        RabbitMqConsumer consumer,
-        GeminiClient gemini,
-        SummaryStorage storage,
-        ILogger<GenAiWorkerService> logger)
+    public GenAiWorkerService(RabbitMqConsumer consumer, GeminiClient gemini, SummaryStorage storage, ILogger<GenAiWorkerService> logger)
     {
         _consumer = consumer;
         _gemini = gemini;
@@ -26,14 +22,13 @@ public class GenAiWorkerService : BackgroundService
     {
         _logger.LogInformation("GenAI worker started");
 
-        // WICHTIG: Nicht fire-and-forget, sondern Task zurückgeben
         return _consumer.ConsumeAsync(async message =>
         {
             try
             {
                 _logger.LogInformation("Received OCR completed message for DocumentId {DocumentId}", message.Id);
 
-                // 1. OCR-Text holen (direkt aus Message oder aus MinIO)
+                //OCR-Text holen
                 string ocrText = await _storage.LoadOcrTextAsync(message, stoppingToken);
 
                 if (string.IsNullOrWhiteSpace(ocrText))
@@ -42,7 +37,7 @@ public class GenAiWorkerService : BackgroundService
                     return;
                 }
 
-                // 2. Gemini aufrufen
+                //Gemini aufrufen
                 var summary = await _gemini.SummarizeAsync(ocrText, stoppingToken);
 
                 if (string.IsNullOrWhiteSpace(summary))
@@ -51,11 +46,11 @@ public class GenAiWorkerService : BackgroundService
                     return;
                 }
 
-                // 3. Summary in MinIO speichern
+                //In MinIO speichern
                 if (!Guid.TryParse(message.Id, out var documentId))
                 {
                     _logger.LogError("Invalid Guid in message.Id: {Id}", message.Id);
-                    return; // oder throw, je nach Strategie
+                    return;
                 }
 
                 var objectKey = await _storage.StoreSummaryAsync(documentId, summary, stoppingToken);

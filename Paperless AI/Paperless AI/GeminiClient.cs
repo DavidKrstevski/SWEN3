@@ -19,8 +19,7 @@ public class GeminiClient
         _logger = logger;
 
         _model = config["GEMINI_MODEL"] ?? "gemini-2.0-flash";
-        _apiKey = config["GEMINI_API_KEY"]
-                  ?? throw new InvalidOperationException("GEMINI_API_KEY not set");
+        _apiKey = config["GEMINI_API_KEY"] ?? throw new InvalidOperationException("GEMINI_API_KEY not set");
 
         _httpClient.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1/");
         _httpClient.DefaultRequestHeaders.Add("x-goog-api-key", _apiKey);

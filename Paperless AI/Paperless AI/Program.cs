@@ -16,7 +16,7 @@ var host = Host.CreateDefaultBuilder(args)
         });
 
         services.AddSingleton<RabbitMqConsumer>();
-        services.AddSingleton<SummaryStorage>();  // MinIO
+        services.AddSingleton<SummaryStorage>(); 
         services.AddHostedService<GenAiWorkerService>();
     })
     .Build();
