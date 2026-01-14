@@ -10,6 +10,22 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
   api:
     build:
       context: "./Paperless API"
@@ -92,7 +108,23 @@ services:
       MINIO_BUCKET: documents
       MINIO_SUMMARY_PREFIX: summaries/
 
+  indexing-worker:
+    build:
+      context: "./Indexing Worker"
+      dockerfile: "Indexing Worker/Dockerfile"
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    environment:
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__User: guest
+      RabbitMQ__Pass: guest
+      RabbitMQ__Queue: ocr_completed_index
+      Elasticsearch__Url: http://elasticsearch:9200
+      Elasticsearch__IndexName: documents
+
 volumes:
   pgdata:
   rabbitmq_data:
   minio_data:
+  esdata:

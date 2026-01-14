@@ -76,6 +76,104 @@ public class GeminiClient
         }
     }
 
+    public sealed class LegalCheckResult
+    {
+        public string? TrafficLight { get; set; }
+        public string? Answer { get; set; }
+    }
+    public async Task<LegalCheckResult?> LegalCheckAsync(string text, CancellationToken ct = default)
+    {
+        var prompt = $@"Prüfe den folgenden Text nach österreichischem Recht auf rechtliche Plausibilität und typische Risiken (unverbindliche Vorprüfung, keine Rechtsberatung).
+            Antworte AUSSCHLIESSLICH mit gültigem JSON (kein Markdown, kein Text außerhalb von JSON) in genau dieser Form:
+            {{
+                ""trafficLight"": ""green"" | ""yellow"" | ""orange"" | ""red"",
+                ""answer"": ""kurze Zusammenfassung der wichtigsten Risiken/Probleme und ggf. fehlender Standardklauseln (max. 10 Sätze)""
+            }}
+            Text:
+            {text}";
+
+        var body = new
+        {
+            contents = new[]
+            {
+            new
+            {
+                parts = new[] { new { text = prompt } }
+            }
+        }
+        };
+
+        var json = JsonSerializer.Serialize(body);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var url = $"models/{_model}:generateContent";
+        using var response = await _httpClient.PostAsync(url, content, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorText = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogError("Gemini API error {StatusCode}: {Error}", response.StatusCode, errorText);
+            return null;
+        }
+
+        var responseJson = await response.Content.ReadAsStringAsync(ct);
+
+        var modelText = ExtractText(responseJson);
+        modelText = modelText.Replace("`", "");
+        var i = modelText.IndexOf('{');
+        modelText =  modelText.Substring(i).Trim();
+        if (string.IsNullOrWhiteSpace(modelText))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<LegalCheckResult>(
+                modelText,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Model returned invalid JSON: {Text}", modelText);
+            return null;
+        }
+    }
+
+    public async Task<string?> AskGeminiAndPrintAsync(string ocr, string question, CancellationToken ct = default)
+    {
+        var prompt = $@"Beantworte die folgende Frage für mein doc kurz und klar (kein JSON, kein Markdown nötig): Frage: {question} Doc: {ocr}";
+
+        var body = new
+        {
+            contents = new[]
+            {
+            new
+            {
+                parts = new[] { new { text = prompt } }
+            }
+        }
+        };
+
+        var json = JsonSerializer.Serialize(body);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var url = $"models/{_model}:generateContent";
+        using var response = await _httpClient.PostAsync(url, content, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorText = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogError("Gemini API error {StatusCode}: {Error}", response.StatusCode, errorText);
+            return "";
+        }
+
+        var responseJson = await response.Content.ReadAsStringAsync(ct);
+
+        var answer = ExtractText(responseJson);
+
+        return answer;
+    }
+
+
     private static string? ExtractText(string responseJson)
     {
         using var doc = JsonDocument.Parse(responseJson);

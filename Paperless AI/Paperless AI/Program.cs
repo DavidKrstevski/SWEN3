@@ -2,6 +2,7 @@ using GenAIWorker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Paperless_AI;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
@@ -16,6 +17,7 @@ var host = Host.CreateDefaultBuilder(args)
         });
 
         services.AddSingleton<RabbitMqConsumer>();
+        services.AddSingleton<IRabbitMqProducer, RabbitMqProducer>();
         services.AddSingleton<SummaryStorage>(); 
         services.AddHostedService<GenAiWorkerService>();
     })

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indexing Worker", "Indexing Worker\Indexing Worker.csproj", "{A2BF3F65-A762-4CC3-B377-95FD5007D399}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indexing Worker Test", "Indexing Worker Test\Indexing Worker Test.csproj", "{35416A06-1624-44B1-85CA-1C0F6A151DD2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A2BF3F65-A762-4CC3-B377-95FD5007D399} = {A2BF3F65-A762-4CC3-B377-95FD5007D399}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2BF3F65-A762-4CC3-B377-95FD5007D399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2BF3F65-A762-4CC3-B377-95FD5007D399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2BF3F65-A762-4CC3-B377-95FD5007D399}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2BF3F65-A762-4CC3-B377-95FD5007D399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35416A06-1624-44B1-85CA-1C0F6A151DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35416A06-1624-44B1-85CA-1C0F6A151DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35416A06-1624-44B1-85CA-1C0F6A151DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35416A06-1624-44B1-85CA-1C0F6A151DD2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DB2FD4F3-73B8-4A60-8632-EB69A414A9C4}
+	EndGlobalSection
+EndGlobal

@@ -52,6 +52,25 @@ namespace Paperless_API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = doc.Id }, doc);
         }
 
+
+        [HttpPost("{id:guid}/ask")]
+        public async Task<IActionResult> AskIA([FromRoute] Guid id, [FromBody] string req, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(req))
+                return BadRequest("Message is required.");
+
+            var doc = await _repo.GetAsync(id, ct);
+            if (doc is null)
+                return NotFound($"Document {id} not found.");
+
+            doc.ChatHistory += $"\n---ENTER---\n {req}";
+            await _producer.PublishAsync(doc, _producer.Host, "ai_chat_requests");
+
+            return Accepted(new { documentId = id, queued = true });
+        }
+
+
+
         // GET api/documents/{id}
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id, CancellationToken ct)

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
 
 const API_URL = "http://localhost:8080/api/documents";
 
@@ -55,6 +56,15 @@ function Dashboard() {
     loadDocuments();
   }, []);
 
+  const getBorderColor = (riskColor) => {
+    const rc = (riskColor || "").toString().trim().toLowerCase();
+    if (rc === "green") return "green";
+    if (rc === "yellow") return "gold";
+    if (rc === "orange") return "orange";
+    if (rc === "red") return "red";
+    return "black";
+  };
+
   return (
     <div className="container py-5">
       <h1 className="text-center mb-4">Document Dashboard</h1>
@@ -68,13 +78,15 @@ function Dashboard() {
             <li
               key={d.id}
               className="list-group-item d-flex justify-content-between align-items-center"
+              style={{
+                border: "2px solid",
+                borderColor: getBorderColor(d.riskColor),
+              }}
             >
-              <a
-                href={`/documents/${d.id}`}
-                className="text-decoration-none"
-              >
+              <Link to={`/documents/${d.id}`} className="text-decoration-none">
                 <strong>{d.fileName}</strong> ({d.size} bytes)
-              </a>
+              </Link>
+
               <button
                 className="btn btn-sm btn-danger"
                 onClick={() => deleteDocument(d.id)}

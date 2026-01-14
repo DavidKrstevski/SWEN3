@@ -22,6 +22,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<RabbitMqSettings>(
     builder.Configuration.GetSection("RabbitMQ"));
 
+builder.Services.AddSingleton<RabbitMqConsumer>();
+builder.Services.AddHostedService<RabbitWorker>();
+
 builder.Services.Configure<MinioSettings>(
     builder.Configuration.GetSection("Minio"));
 

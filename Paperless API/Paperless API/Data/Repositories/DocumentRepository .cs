@@ -34,5 +34,24 @@ namespace Paperless_API.Data.Repositories
             _db.Documents.Remove(doc);
             await _db.SaveChangesAsync(ct);
         }
+
+        public async Task<Document> UpdateAsync(Document updated, CancellationToken ct)
+        {
+            var existing = await _db.Documents.FirstOrDefaultAsync(d => d.Id == updated.Id, ct);
+            if (existing == null)
+                throw new DocumentNotFoundException(updated.Id);
+
+            // Felder updaten (wichtig: Id nicht ändern)
+            existing.FileName = updated.FileName;
+            existing.Size = updated.Size;
+            existing.UploadDate = updated.UploadDate;
+
+            existing.Summary = updated.Summary;
+            existing.ChatHistory = updated.ChatHistory;
+            existing.RiskColor = updated.RiskColor;
+
+            await _db.SaveChangesAsync(ct);
+            return existing;
+        }
     }
 }

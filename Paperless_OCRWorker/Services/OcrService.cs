@@ -38,6 +38,9 @@ public class OcrService
                 await _minio.UploadFileAsync($"{doc.Id}.txt", localTxt);
                 Console.WriteLine($"Uploaded OCR result: {doc.Id}.txt");
                 await _producer.PublishAsync(doc, _producer.Host, _producer.Queue);
+                var extractedText = await File.ReadAllTextAsync(localTxt);
+                doc.Text = extractedText;
+                await _producer.PublishAsync(doc, _producer.Host, "ocr_completed_index");
             }
             else
             {

@@ -8,6 +8,7 @@ namespace Paperless_API.Data.Repositories
         Task<Document> GetAsync(Guid id, CancellationToken ct);
         Task<List<Document>> GetAllAsync(CancellationToken ct);
         Task DeleteAsync(Guid id, CancellationToken ct);
+        Task<Document> UpdateAsync(Document updated, CancellationToken ct);
 
     }
 }

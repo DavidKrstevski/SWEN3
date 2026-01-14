@@ -1,9 +1,9 @@
 ﻿using System.Text;
-using GenAIWorker.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Minio;
 using Minio.DataModel.Args;
+using Paperless_AI;
 
 namespace GenAIWorker;
 
@@ -63,7 +63,7 @@ public class SummaryStorage
         return objectKey;
     }
 
-    public async Task<string> LoadOcrTextAsync(OcrCompletedMessage msg, CancellationToken ct)
+    public async Task<string> LoadOcrTextAsync(AICompletedMessage msg, CancellationToken ct)
     {
         var objectName = $"{msg.Id}.txt";
 
