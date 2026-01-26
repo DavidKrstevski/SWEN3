@@ -8,7 +8,7 @@ function Dashboard() {
   const [docs, setDocs] = useState([]);
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ neu
+  const [searchTerm, setSearchTerm] = useState("");
 
   async function loadDocuments() {
     try {
@@ -66,7 +66,6 @@ function Dashboard() {
     return "black";
   };
 
-  // ✅ neu: gefilterte Liste nach Dokumentname (fileName)
   const filteredDocs = docs.filter((d) =>
     (d.fileName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -76,7 +75,7 @@ function Dashboard() {
       <h1 className="text-center mb-4">Document Dashboard</h1>
       {message && <div className="alert alert-info">{message}</div>}
 
-      {/* ✅ neu: Searchbar */}
+      {}
       <input
         type="text"
         className="form-control mb-3"
