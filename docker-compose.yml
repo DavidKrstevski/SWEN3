@@ -91,17 +91,14 @@ services:
       - rabbitmq
       - minio
     environment:
-      # Gemini
-      GEMINI_API_KEY: AIzaSyDa-MwTbM5kU9LYpFnglVD30_0wiGN0QT4
+      GEMINI_API_KEY: AIzaSyBVZwC0NC53LRM8bxwcNQujG6IgraDtXYI
       GEMINI_MODEL: gemini-2.5-flash
 
-      # RabbitMQ (Queue-Namen unbedingt an deine "OCR-fertig"-Queue anpassen!)
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: guest
       RABBITMQ_PASS: guest
       RABBITMQ_OCR_COMPLETED_QUEUE: ocr_completed
 
-      # MinIO
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
@@ -122,6 +119,19 @@ services:
       RabbitMQ__Queue: ocr_completed_index
       Elasticsearch__Url: http://elasticsearch:9200
       Elasticsearch__IndexName: documents
+
+  accessbatch:
+    build:
+      context: .
+      dockerfile: Paperless_AccessBatch/Dockerfile
+    depends_on:
+      - db
+    environment:
+      AccessBatch__InputFolder: data/access-input
+      AccessBatch__ArchiveFolder: data/access-archive
+      ConnectionStrings__Postgres: Host=db;Port=5432;Database=paperless;Username=paperless;Password=paperless
+    volumes:
+      - ./Paperless_AccessBatch/data:/app/data
 
 volumes:
   pgdata:
