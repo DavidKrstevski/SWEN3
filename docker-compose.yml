@@ -91,7 +91,7 @@ services:
       - rabbitmq
       - minio
     environment:
-      GEMINI_API_KEY: AIzaSyBVZwC0NC53LRM8bxwcNQujG6IgraDtXYI
+      GEMINI_API_KEY: AIzaSyBFLLwgPGliR6ymzS66y94_j03TM91Rhjg
       GEMINI_MODEL: gemini-2.5-flash
 
       RABBITMQ_HOST: rabbitmq

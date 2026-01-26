@@ -8,6 +8,7 @@ function Dashboard() {
   const [docs, setDocs] = useState([]);
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ neu
 
   async function loadDocuments() {
     try {
@@ -65,16 +66,32 @@ function Dashboard() {
     return "black";
   };
 
+  // ✅ neu: gefilterte Liste nach Dokumentname (fileName)
+  const filteredDocs = docs.filter((d) =>
+    (d.fileName || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container py-5">
       <h1 className="text-center mb-4">Document Dashboard</h1>
       {message && <div className="alert alert-info">{message}</div>}
 
+      {/* ✅ neu: Searchbar */}
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Search by document name..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       <ul className="list-group mb-4">
-        {docs.length === 0 ? (
-          <li className="list-group-item">No documents found</li>
+        {filteredDocs.length === 0 ? (
+          <li className="list-group-item">
+            {docs.length === 0 ? "No documents found" : "No matching documents"}
+          </li>
         ) : (
-          docs.map((d) => (
+          filteredDocs.map((d) => (
             <li
               key={d.id}
               className="list-group-item d-flex justify-content-between align-items-center"
