@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="data\access-input\" />
     <Folder Include="data\access-archive\" />
   </ItemGroup>
 </Project>

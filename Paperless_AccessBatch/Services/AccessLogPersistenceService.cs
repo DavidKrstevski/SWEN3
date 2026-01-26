@@ -15,11 +15,32 @@ public class AccessLogPersistenceService
         List<DocumentAccessLog> logs,
         CancellationToken ct)
     {
-        foreach (var log in logs)
-        {
-            log.AccessDate = DateTime.SpecifyKind(
-                log.AccessDate, DateTimeKind.Utc);
+        if (logs.Count == 0)
+            return;
 
+        var documentIds = logs
+            .Select(l => l.DocumentId)
+            .Distinct()
+            .ToList();
+
+        // 🔑 Check which documents actually exist
+        var existingDocumentIds = await _db.Database
+            .SqlQuery<Guid>($"""
+            SELECT "Id"
+            FROM "Documents"
+            WHERE "Id" = ANY ({documentIds})
+        """)
+            .ToListAsync(ct);
+
+        var validLogs = logs
+            .Where(l => existingDocumentIds.Contains(l.DocumentId))
+            .ToList();
+
+        if (validLogs.Count == 0)
+            return;
+
+        foreach (var log in validLogs)
+        {
             var existing = await _db.DocumentAccessLogs
                 .SingleOrDefaultAsync(l =>
                     l.DocumentId == log.DocumentId &&
@@ -38,4 +59,5 @@ public class AccessLogPersistenceService
 
         await _db.SaveChangesAsync(ct);
     }
+
 }
