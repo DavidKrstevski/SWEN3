@@ -23,7 +23,6 @@ public class AccessLogPersistenceService
             .Distinct()
             .ToList();
 
-        // 🔑 Check which documents actually exist
         var existingDocumentIds = await _db.Database
             .SqlQuery<Guid>($"""
             SELECT "Id"
